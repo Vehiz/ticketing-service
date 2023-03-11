@@ -4,6 +4,7 @@ import { Offense } from "../model/offenseModel";
 import Payment from "../model/paymentModel";
 import { generateToken as generateSignature } from "../utils/utility";
 import PaymentModel, { IPayment } from "../model/paymentModel";
+import https from 'https'
 
 // Register User
 export const registerUser = async (req: Request, res: Response) => {
@@ -141,3 +142,49 @@ export const paymentRegister = async(req:Request, res:Response)=>{
 
     }
 }
+
+export const paystackPayment = (req:Request, res:Response)=>{
+  try {
+    
+
+const params = JSON.stringify({
+  "email": "vehiz@gmail.com",
+  "amount": "10000"
+})
+
+const options = {
+  hostname: 'api.paystack.co',
+  port: 443,
+  path: '/transaction/initialize',
+  method: 'POST',
+  headers: {
+    Authorization: 'Bearer sk_test_a98e29c541cd80d9d3b19732a792c456840ce5ca',
+    'Content-Type': 'application/json'
+  }
+}
+
+const reqPaystack = https.request(options, resPaystack => {
+  let data = ''
+
+  resPaystack.on('data', (chunk) => {
+    data += chunk
+  });
+
+  resPaystack.on('end', () => {
+    res.status(200).json({data})
+    console.log(JSON.parse(data))
+  })
+}).on('error', error => {
+  console.error(error)
+})
+
+reqPaystack.write(params)
+reqPaystack.end()
+  } catch (error:any) {
+    res.status(500).json({
+      Error: error.message
+    })
+  }
+}
+
+
